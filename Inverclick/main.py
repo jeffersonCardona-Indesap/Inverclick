@@ -1,11 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from Repositories.database import verify_db_connection_and_schema
+from Models.Users import Users
+from Models.Prefix import Prefix
+from Models.Country import Country
 from Controllers.UsersController import router as users_router
-from Controllers.Prefixcontroller import router as prefix_router
+from Controllers.PrefixController import router as prefix_router
+from Controllers.CountryController import router as country_router
 
 # Verificar la conexión y estructura de la base de datos al arrancar
-verify_db_connection_and_schema()
+verify_db_connection_and_schema([Prefix, Country, Users])
 
 app = FastAPI(
     title="Inverclick API",
@@ -22,6 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Registrar el router de usuarios del controlador
+# Registrar el router de cada controlador
 app.include_router(users_router)
 app.include_router(prefix_router)
+app.include_router(country_router)

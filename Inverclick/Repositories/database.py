@@ -1,6 +1,7 @@
 # database.py
 import os
-from sqlalchemy import create_engine
+from xml.parsers.expat import model
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from dotenv import load_dotenv
 
@@ -29,9 +30,8 @@ def get_db():
         db.close()
 
 # Función para verificar la conexión y la estructura de las tablas sin alterarlas
-def verify_db_connection_and_schema():
-    from sqlalchemy import inspect, text
-    from Models.users import Usuario  # Importación diferida para evitar ciclos
+def verify_db_connection_and_schema(models_to_check: list) -> bool:
+    
     
     try:
         # 1. Verificar la conexión básica ejecutando una consulta rápida
@@ -41,26 +41,33 @@ def verify_db_connection_and_schema():
             
             # 2. Inspeccionar la base de datos
             inspector = inspect(engine)
-            table_name = Usuario.__tablename__
+            all_ok = True
             
-            # Verificar si la tabla existe
-            if not inspector.has_table(table_name):
-                print(f"DATABASE ERROR: La tabla '{table_name}' no existe en la base de datos.")
-                return False
+            # Verificar cada modelo en la lista
+            for model in models_to_check:
+                table_name = model.__tablename__
                 
-            # 3. Verificar que las columnas coincidan
-            db_columns = {col["name"]: col for col in inspector.get_columns(table_name)}
-            model_columns = Usuario.__table__.columns
-            
-            for col in model_columns:
-                if col.name not in db_columns:
-                    print(f"DATABASE ERROR: La columna '{col.name}' definida en el modelo no existe en la tabla real.")
-                    return False
-            
-            print(f"DATABASE: Estructura de la tabla '{table_name}' verificada y correcta.")
-            return True
+                # Verificar si la tabla existe
+                if not inspector.has_table(table_name):
+                    print(f"DATABASE ERROR: La tabla '{table_name}' no existe en la base de datos.")
+                    all_ok = False
+                    continue
+                
+                # 3. Verificar que las columnas coincidan
+                db_columns = {col["name"] for col in inspector.get_columns(table_name)}
+                model_columns = {col.name for col in model.__table__.columns}
+
+                columnas_faltantes = model_columns - db_columns
+
+                if columnas_faltantes:
+                    print(f"DATABASE ERROR: En '{table_name}' faltan columnas en la BD: {columnas_faltantes}")
+                    all_ok = False
+                else:   
+                    print(f"DATABASE: Tabla '{table_name}' verificada y correcta.")
+
+            return all_ok
             
     except Exception as e:
         print(f"DATABASE ERROR: Fallo al verificar la conexión o estructura: {e}")
         return False
-
+

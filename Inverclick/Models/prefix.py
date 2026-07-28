@@ -6,5 +6,4 @@ class Prefix(Base):
     __tablename__ = "prefix"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    pais: Mapped[str] = mapped_column(String(255), unique=True, index=True)
-    codigo: Mapped[str] = mapped_column(String(100))
+    code: Mapped[str] = mapped_column(String(100), unique=True, index=True)
