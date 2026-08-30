@@ -1,7 +1,10 @@
 # database.py
 import os
+# pyrefly: ignore [missing-import]
 from sqlalchemy import create_engine
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
+# pyrefly: ignore [missing-import]
 from dotenv import load_dotenv
 
 # Cargar las variables de entorno
@@ -34,11 +37,15 @@ def get_db():
 
 # Función para verificar la conexión y la estructura de las tablas sin alterarlas
 def verify_db_connection_and_schema():
+    # pyrefly: ignore [missing-import]
+    # pyrefly: ignore [missing-import]
     from sqlalchemy import inspect, text
+    # pyrefly: ignore [missing-import]
     from Models.users import UserDTO  # Importación diferida para evitar ciclos
     
     try:
         # 1. Verificar la conexión básica ejecutando una consulta rápida
+        # pyrefly: ignore [missing-import]
         with engine.connect() as connection:
             connection.execute(text("SELECT 1"))
             print("DATABASE: Conexión establecida con éxito.")
@@ -71,4 +78,4 @@ def verify_db_connection_and_schema():
     except Exception as e:
         print(f"DATABASE ERROR: Fallo al verificar la conexión o estructura: {e}")
         return False
-
+

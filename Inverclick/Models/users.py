@@ -1,11 +1,11 @@
 # models.py
-from datetime import datetime
-from typing import Optional
-from sqlalchemy import String, Integer, DateTime, ForeignKey, Identity, Enum as SQLEnum
-from sqlalchemy.orm import Mapped, mapped_column
-from pydantic import BaseModel, ConfigDict
+from datetime import datetime, date # pyrefly: ignore [missing-import]
+from typing import Optional # pyrefly: ignore [missing-import]
+from sqlalchemy import String, Integer, DateTime, ForeignKey, Identity, Enum as SQLEnum, Date, Boolean, ARRAY # pyrefly: ignore [missing-import]
+from sqlalchemy.orm import Mapped, mapped_column # pyrefly: ignore [missing-import]
+from pydantic import BaseModel, ConfigDict # pyrefly: ignore [missing-import]
 from Repositories.database import Base
-from Utils.enums import IdentificationTypeEnum
+from Utils.enums import IdentificationTypeEnum # pyrefly: ignore [missing-import]
 
 class UserDTO(Base):
     __tablename__ = "users"
@@ -31,6 +31,8 @@ class UserDTO(Base):
     desired_description: Mapped[str] = mapped_column(String(500), nullable=False)
     updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     created_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, default=datetime.utcnow)
+    date_of_birth: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    user_id_role: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("inverclick.users_role.id"), nullable=True)
 
 # --- Esquemas Pydantic con validación estricta (extra='forbid') ---
 
@@ -51,6 +53,8 @@ class UserCreateSchema(BaseModel):
     monthly_income: Optional[str] = None
     monthly_outcome: Optional[str] = None
     desired_description: str
+    date_of_birth: Optional[date] = None
+    user_id_role: Optional[int] = None
 
 class UserUpdateSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True, extra="forbid")
@@ -69,6 +73,8 @@ class UserUpdateSchema(BaseModel):
     monthly_income: Optional[str] = None
     monthly_outcome: Optional[str] = None
     desired_description: Optional[str] = None
+    date_of_birth: Optional[date] = None
+    user_id_role: Optional[int] = None
 
 class UserResponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -90,3 +96,44 @@ class UserResponseSchema(BaseModel):
     desired_description: str
     updated_at: Optional[datetime] = None
     created_at: Optional[datetime] = None
+    date_of_birth: Optional[date] = None
+    user_id_role: Optional[int] = None
+    role: Optional[str] = None
+
+# --- Nuevos Modelos SQLAlchemy para Roles e Inicio de Sesión ---
+
+class UserRoleDTO(Base):
+    __tablename__ = "users_role"
+    __table_args__ = {"schema": "inverclick"}
+
+    id: Mapped[int] = mapped_column(Integer, Identity(always=False, start=1), primary_key=True)
+    role: Mapped[str] = mapped_column(String(100), nullable=False)
+    modules: Mapped[Optional[list[str]]] = mapped_column(ARRAY(String), nullable=True)
+
+class UserLoginDTO(Base):
+    __tablename__ = "users_login"
+    __table_args__ = {"schema": "inverclick"}
+
+    id: Mapped[int] = mapped_column(Integer, Identity(always=False, start=1), primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("inverclick.users.id"), nullable=False)
+    user_login: Mapped[str] = mapped_column(String(100), nullable=False)
+    user_password: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, default=datetime.utcnow)
+    updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, default=datetime.utcnow, onupdate=datetime.utcnow)
+    active: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True, default=True)
+
+# --- Nuevos Esquemas Pydantic para Autenticación ---
+
+class UserLoginRequest(BaseModel):
+    user_login: str
+    user_password: str
+
+class UserLoginResponse(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponseSchema
+
+class UserLoginCreateSchema(BaseModel):
+    user_id: int
+    user_login: str
+    user_password: str

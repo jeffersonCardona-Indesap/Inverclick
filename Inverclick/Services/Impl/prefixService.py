@@ -1,7 +1,8 @@
 from Repositories.IPrefixRepository import IPrefixRepository
 from Models.prefix import Prefix
+from Services.IPrefixservice import IPrefixService
 
-class PrefixService:
+class PrefixService(IPrefixService):
     def __init__(self, repository: IPrefixRepository):
         self.repository = repository
 
