@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
 from typing import Any
+# pyrefly: ignore [missing-import]
 import bcrypt
 # pyrefly: ignore [missing-import]
 import jwt
@@ -8,7 +9,7 @@ import jwt
 # Constantes de configuración (intentar obtener de variables de entorno)
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "inverclick_secret_key_2026_change_me_in_production")
 ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "1440")) # 24 horas por defecto
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "15")) # 15 minutos por defecto
 
 def hash_password(password: str) -> str:
     """

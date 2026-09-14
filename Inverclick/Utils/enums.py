@@ -12,4 +12,17 @@ class IdentificationTypeEnum(str, Enum):
     PAS = "PAS"
     NIT = "NIT"
     PEP = "PEP"
-    
+
+class PropertyStatusEnum(str, Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+
+class SalesStatusEnum(str, Enum):
+    AVAILABLE = "available"
+    SOLD = "sold"
+
+class AuditActionEnum(str, Enum):
+    CREATE = "CREATE"
+    UPDATE = "UPDATE"
+    DELETE = "DELETE"
+    SALE = "SALE"

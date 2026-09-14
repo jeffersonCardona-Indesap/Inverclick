@@ -1,0 +1,16 @@
+@baseUrl = http://localhost:8000
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5IiwiZW1haWwiOiJkam9ya2ExMjIxQGdtYWlsLmNvbSIsInJvbGUiOiJNYXN0ZXIiLCJleHAiOjE3ODgzNzg2OTJ9.8X2W4GjNyxJyJ4Nm7UMYfHib2a2RDWCwAkwCQjnT6tE
+
+### Probar autenticacion con el token existente
+GET {{baseUrl}}/users/9
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Obtener un token nuevo cuando sea necesario
+# POST {{baseUrl}}/auth/login
+# Content-Type: application/json
+#
+# {
+#   "email": "tu-correo",
+#   "password": "tu-contrasena"
+# }

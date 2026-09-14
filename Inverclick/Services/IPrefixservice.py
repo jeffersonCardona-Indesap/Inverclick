@@ -13,5 +13,6 @@ class IPrefixService:
 
     def get_all(self, skip: int = 0, limit: int = 100) -> list[Prefix]:
         pass
-
+    
+    
 

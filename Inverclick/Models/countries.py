@@ -1,5 +1,7 @@
 from datetime import datetime
+# pyrefly: ignore [missing-import]
 from sqlalchemy import String, Integer, DateTime, ForeignKey
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Mapped, mapped_column
 from Repositories.database import Base
 

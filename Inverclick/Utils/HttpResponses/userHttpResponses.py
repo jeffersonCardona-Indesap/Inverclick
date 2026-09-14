@@ -59,3 +59,7 @@ class UserHttpResponses:
     @staticmethod
     def error_user_not_deleted() -> HTTPException:
         return HTTPException(status_code=400, detail="Usuario no eliminado")
+
+    @staticmethod
+    def error_role_not_found() -> HTTPException:
+        return HTTPException(status_code=404, detail="El rol especificado no existe")

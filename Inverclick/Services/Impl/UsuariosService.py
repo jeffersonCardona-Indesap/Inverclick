@@ -15,12 +15,14 @@ def validateUser(self, userDTO: UserDTO) -> UserDTO:
         identification = userDTO.get("identification")
         identification_type = userDTO.get("identification_type")
         country_id = userDTO.get("country_id")
+        user_id_role = userDTO.get("user_id_role")
         user_dto = UserDTO(**userDTO)
     else:
         email = userDTO.email
         identification = userDTO.identification
         identification_type = userDTO.identification_type
         country_id = userDTO.country_id
+        user_id_role = userDTO.user_id_role
         user_dto = userDTO
 
     invalid = self.validator.validate_user_dto_lengths(userDTO)
@@ -28,10 +30,17 @@ def validateUser(self, userDTO: UserDTO) -> UserDTO:
         field, min_len, max_len = invalid
         raise self.http_responses.error_invalid_length(field, min_len, max_len)
 
-    if country_id:
+    if country_id is not None:
         country = self.prefix_repository.get_by_id(country_id)
         if country is None:
             raise self.http_responses.error_country_not_found()
+
+    if user_id_role is not None:
+        db_session = getattr(self.repository, "db", None)
+        if db_session:
+            role_stmt = select(UserRoleDTO).where(UserRoleDTO.id == user_id_role)
+            if not db_session.execute(role_stmt).scalar_one_or_none():
+                raise self.http_responses.error_role_not_found()
 
     if email and self.repository.get_by_email(email) is not None:
         raise self.http_responses.error_email_already_exists()
@@ -97,13 +106,27 @@ class UsuariosService(IUsuariosService):
             raise self.http_responses.error_user_not_created()
         return self._populate_role(user)
 
-    def update(self, user_id: int, user_data: dict[str, Any] | UserDTO) -> UserDTO | None:
-        invalid = self.validator.validate_user_dto_lengths(user_data)
+    def update(self, user_id: int, userDTO: dict[str, Any] | UserDTO) -> UserDTO | None:
+        invalid = self.validator.validate_user_dto_lengths(userDTO)
         if invalid:
             field, min_len, max_len = invalid
             raise self.http_responses.error_invalid_length(field, min_len, max_len)
 
-        user: UserDTO | None = self.repository.update(user_id, user_data)
+        country_id = getattr(userDTO, "country_id", None) if not isinstance(userDTO, dict) else userDTO.get("country_id")
+        if country_id is not None:
+            country = self.prefix_repository.get_by_id(country_id)
+            if country is None:
+                raise self.http_responses.error_country_not_found()
+
+        user_id_role = getattr(userDTO, "user_id_role", None) if not isinstance(userDTO, dict) else userDTO.get("user_id_role")
+        if user_id_role is not None:
+            db_session = getattr(self.repository, "db", None)
+            if db_session:
+                role_stmt = select(UserRoleDTO).where(UserRoleDTO.id == user_id_role)
+                if not db_session.execute(role_stmt).scalar_one_or_none():
+                    raise self.http_responses.error_role_not_found()
+
+        user: UserDTO | None = self.repository.update(user_id, userDTO)
         if user is None:
             raise self.http_responses.error_user_not_updated()
         return self._populate_role(user)
