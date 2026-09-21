@@ -30,3 +30,8 @@ class IUsuariosService:
     def delete(self, user_id: int) -> bool:
         """Elimina un usuario por su ID."""
         pass
+
+    def assign_constructora(self, user_id: int, constructora_id: int) -> UserDTO | None:
+        """Asigna una constructora a un usuario con rol Constructora."""
+        pass
+

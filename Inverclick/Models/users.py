@@ -33,6 +33,7 @@ class UserDTO(Base):
     created_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, default=datetime.utcnow)
     date_of_birth: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     user_id_role: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("inverclick.users_role.id"), nullable=True)
+    id_constructionCompany: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("inverclick.construction_company.id"), nullable=True)
 
 # --- Esquemas Pydantic con validación estricta (extra='forbid') ---
 
@@ -55,6 +56,7 @@ class UserCreateSchema(BaseModel):
     desired_description: str
     date_of_birth: Optional[date] = None
     user_id_role: Optional[int] = None
+    id_constructionCompany: Optional[int] = None
 
 class UserUpdateSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True, extra="forbid")
@@ -75,9 +77,11 @@ class UserUpdateSchema(BaseModel):
     desired_description: Optional[str] = None
     date_of_birth: Optional[date] = None
     user_id_role: Optional[int] = None
+    id_constructionCompany: Optional[int] = None
 
 class UserResponseSchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, coerce_numbers_to_str=True)
+
 
     id: int
     name: str
@@ -99,6 +103,8 @@ class UserResponseSchema(BaseModel):
     date_of_birth: Optional[date] = None
     user_id_role: Optional[int] = None
     role: Optional[str] = None
+    id_constructionCompany: Optional[int] = None
+
 
 # --- Nuevos Modelos SQLAlchemy para Roles e Inicio de Sesión ---
 

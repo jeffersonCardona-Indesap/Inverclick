@@ -20,7 +20,8 @@ from Utils.auth_middleware import RoleChecker, get_current_user
 router = APIRouter(prefix="/constructoras", tags=["Constructoras"])
 
 role_master_or_admin = RoleChecker(["Master", "Admin"])
-role_constructora = RoleChecker(["Master", "Admin", "Constructora"])
+role_all_read = RoleChecker(["Master", "Admin", "Constructora", "Usuario"])
+role_user = RoleChecker(["Usuario"])
 
 
 def get_constructoras_service(db: Session = Depends(get_db)) -> IConstructorasService:
@@ -36,17 +37,28 @@ def get_all_constructoras(
     skip: int = 0,
     limit: int = 100,
     service: IConstructorasService = Depends(get_constructoras_service),
-    current_user: UserDTO = Depends(role_master_or_admin),
+    current_user: UserDTO = Depends(role_all_read),
 ):
-    """Obtiene todas las constructoras (solo Master y Admin)."""
+    """Obtiene todas las constructoras (Master, Admin, Constructora y Usuario)."""
     return service.get_all(skip=skip, limit=limit)
+
+
+@router.get("/favorites", response_model=list[ConstructoraResponseSchema])
+def get_favorite_constructoras(
+    skip: int = 0,
+    limit: int = 100,
+    service: IConstructorasService = Depends(get_constructoras_service),
+    current_user: UserDTO = Depends(role_user),
+):
+    """Obtiene todas las constructoras marcadas como favoritas por el usuario autenticado."""
+    return service.get_favorites(user_id=current_user.id, skip=skip, limit=limit)
 
 
 @router.get("/{company_id}", response_model=ConstructoraResponseSchema)
 def get_constructora_by_id(
     company_id: int,
     service: IConstructorasService = Depends(get_constructoras_service),
-    current_user: UserDTO = Depends(role_constructora),
+    current_user: UserDTO = Depends(role_all_read),
 ):
     """Obtiene una constructora por su ID."""
     return service.get_by_id(company_id)

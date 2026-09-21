@@ -36,7 +36,7 @@ class RealEstateDTO(Base):
 class RealEstateCreateSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
-    id_constructionCompany: int
+    id_constructionCompany: Optional[int] = None
     name: str
     stock: Optional[int] = None
     price: float
@@ -64,7 +64,7 @@ class RealEstateUpdateSchema(BaseModel):
 
 
 class RealEstateResponseSchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, coerce_numbers_to_str=True)
 
     id: int
     id_constructionCompany: int
@@ -73,8 +73,9 @@ class RealEstateResponseSchema(BaseModel):
     created_at: Optional[datetime] = None
     price: float
     city: Optional[str] = None
-    zip_code: Optional[str] = None
+    zip_code: Optional[str | int] = None
     address: str
     description: Optional[str] = None
     status: Optional[bool] = None
     sales_status: Optional[bool] = None
+

@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 from fastapi import HTTPException
 
 
@@ -43,3 +44,8 @@ class PropertyHttpResponses:
     @staticmethod
     def error_already_sold() -> HTTPException:
         return HTTPException(status_code=409, detail="Esta propiedad ya fue vendida y no puede modificarse")
+
+    @staticmethod
+    def error_forbidden_constructora_access() -> HTTPException:
+        return HTTPException(status_code=403, detail="No tienes permiso para acceder o modificar propiedades de otra constructora")
+

@@ -36,3 +36,7 @@ class IPropertiesRepository:
     def delete(self, property_id: int) -> bool:
         """Elimina una propiedad por su ID."""
         pass
+
+    def get_favorites_by_user_id(self, user_id: int, skip: int = 0, limit: int = 100) -> list[RealEstateDTO]:
+        """Obtiene las propiedades marcadas como favoritas por un usuario."""
+        pass

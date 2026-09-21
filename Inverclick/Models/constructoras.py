@@ -53,7 +53,8 @@ class ConstructoraUpdateSchema(BaseModel):
 
 
 class ConstructoraResponseSchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, coerce_numbers_to_str=True)
+
 
     id: int
     nit: str

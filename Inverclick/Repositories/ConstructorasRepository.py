@@ -5,6 +5,7 @@ from sqlalchemy import select
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 from Models.constructoras import ConstructionCompanyDTO
+from Models.leads import LeadDTO
 from Repositories.IConstructorasRepository import IConstructorasRepository
 
 
@@ -63,3 +64,18 @@ class ConstructorasRepository(IConstructorasRepository):
             self.db.commit()
             return True
         return False
+
+    def get_favorites_by_user_id(self, user_id: int, skip: int = 0, limit: int = 100) -> list[ConstructionCompanyDTO]:
+        """Obtiene las constructoras marcadas como favoritas por un usuario."""
+        statement = (
+            select(ConstructionCompanyDTO)
+            .join(LeadDTO, LeadDTO.id_constructionCompany == ConstructionCompanyDTO.id)
+            .where(
+                LeadDTO.id_user == user_id,
+                LeadDTO.is_favorite == True,
+                LeadDTO.id_real_state.is_(None)
+            )
+            .offset(skip)
+            .limit(limit)
+        )
+        return list(self.db.execute(statement).scalars().all())

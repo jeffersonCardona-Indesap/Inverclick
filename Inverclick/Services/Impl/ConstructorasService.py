@@ -63,3 +63,6 @@ class ConstructorasService(IConstructorasService):
         if not success:
             raise self.http_responses.error_not_deleted()
         return success
+
+    def get_favorites(self, user_id: int, skip: int = 0, limit: int = 100) -> list[ConstructionCompanyDTO]:
+        return self.repository.get_favorites_by_user_id(user_id=user_id, skip=skip, limit=limit)

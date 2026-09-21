@@ -6,11 +6,15 @@ __pycache__/
 venv/
 .venv/
 env/
+ENV/
 
 # Variables de entorno y secretos
 .env
 .env.*
 *.env
+
+# Node
+node_modules/
 
 # Supabase archivos temporales
 supabase/.temp/

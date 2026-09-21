@@ -17,6 +17,7 @@ from Utils.user_validator import UserValidator
 # pyrefly: ignore [missing-import]
 from Repositories.database import get_db
 # pyrefly: ignore [missing-import]
+from Repositories.ConstructorasRepository import ConstructorasRepository
 from Models.users import UserDTO, UserCreateSchema, UserUpdateSchema, UserResponseSchema
 from Utils.auth_middleware import RoleChecker
 
@@ -30,9 +31,10 @@ role_master_only = RoleChecker(["Master"])
 def get_usuarios_service(db: Session = Depends(get_db)) -> IUsuariosService:
     repository = UsersRepository(db)
     prefix_repository = PrefixRepository(db)
+    constructoras_repository = ConstructorasRepository(db)
     http_responses = UserHttpResponses()
     validator = UserValidator()
-    return UsuariosService(repository, prefix_repository, http_responses, validator)
+    return UsuariosService(repository, prefix_repository, http_responses, validator, constructoras_repository)
 
 # --- Endpoints del API ---
 
@@ -80,10 +82,20 @@ def update_user(
     user_dto = UserDTO(**user.model_dump(exclude_unset=True))
     return service.update(user_id=usuario_id, userDTO=user_dto)
 
+@router.put("/{usuario_id}/assign-constructora/{constructora_id}", response_model=UserResponseSchema)
+def assign_constructora_to_user(
+    usuario_id: int,
+    constructora_id: int,
+    service: IUsuariosService = Depends(get_usuarios_service),
+    current_user: UserDTO = Depends(role_master_only)
+):
+    """Asigna una constructora a un usuario con rol Constructora (solo Master)."""
+    return service.assign_constructora(user_id=usuario_id, constructora_id=constructora_id)
+
 @router.delete("/{usuario_id}")
 def delete_user(
     usuario_id: int, 
     service: IUsuariosService = Depends(get_usuarios_service),
     current_user: UserDTO = Depends(role_master_only)
 ):
-    return {"success": service.delete(usuario_id)}
+    return {"success": service.delete(usuario_id)}

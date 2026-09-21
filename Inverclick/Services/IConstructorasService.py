@@ -25,3 +25,7 @@ class IConstructorasService:
     def delete(self, company_id: int) -> bool:
         """Elimina una constructora por su ID."""
         pass
+
+    def get_favorites(self, user_id: int, skip: int = 0, limit: int = 100) -> list[ConstructionCompanyDTO]:
+        """Obtiene las constructoras marcadas como favoritas por un usuario."""
+        pass

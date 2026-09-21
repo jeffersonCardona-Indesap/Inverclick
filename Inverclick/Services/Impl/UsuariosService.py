@@ -1,5 +1,6 @@
 from typing import Any
 from Repositories.IUsuariosRepository import IUsuariosRepository
+from Repositories.IConstructorasRepository import IConstructorasRepository
 from Models.users import UserDTO, UserRoleDTO
 from Services.IUsuariosService import IUsuariosService
 from Repositories.IPrefixRepository import IPrefixRepository
@@ -53,11 +54,19 @@ def validateUser(self, userDTO: UserDTO) -> UserDTO:
 
 
 class UsuariosService(IUsuariosService):
-    def __init__(self, repository: IUsuariosRepository, prefix_repository: IPrefixRepository, http_responses: UserHttpResponses, validator: UserValidator):
+    def __init__(
+        self,
+        repository: IUsuariosRepository,
+        prefix_repository: IPrefixRepository,
+        http_responses: UserHttpResponses,
+        validator: UserValidator,
+        constructoras_repository: IConstructorasRepository | None = None
+    ):
         self.repository = repository
         self.prefix_repository = prefix_repository
         self.http_responses = http_responses
         self.validator = validator
+        self.constructoras_repository = constructoras_repository
 
     def _populate_role(self, user: UserDTO | None) -> UserDTO | None:
         if user and user.user_id_role:
@@ -136,3 +145,22 @@ class UsuariosService(IUsuariosService):
         if not success:
             raise self.http_responses.error_user_not_deleted()
         return success
+
+    def assign_constructora(self, user_id: int, constructora_id: int) -> UserDTO | None:
+        user = self.get_by_id(user_id)
+        if not user:
+            raise self.http_responses.error_user_not_found()
+
+        if getattr(user, 'role', None) != "Constructora":
+            raise self.http_responses.error_user_not_constructora_role()
+
+        if self.constructoras_repository:
+            company = self.constructoras_repository.get_by_id(constructora_id)
+            if company is None:
+                raise self.http_responses.error_constructora_not_found()
+
+        updated_user = self.repository.update(user_id, {"id_constructionCompany": constructora_id})
+        if updated_user is None:
+            raise self.http_responses.error_user_not_updated()
+        return self._populate_role(updated_user)
+
