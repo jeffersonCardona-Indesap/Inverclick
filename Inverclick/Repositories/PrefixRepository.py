@@ -17,7 +17,7 @@ class PrefixRepository:
         return list(self.db.execute(statement).scalars().all())
 
     def get_by_code(self, code: str) -> Prefix | None:
-        """Obtiene un Prefix por su código."""
+        """Obtiene un Prefix por su indigo."""
         statement = select(Prefix).where(Prefix.country_phone_code == code)
         return self.db.execute(statement).scalar_one_or_none()
 

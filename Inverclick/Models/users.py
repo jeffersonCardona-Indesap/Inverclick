@@ -33,6 +33,17 @@ class UserDTO(Base):
     updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     created_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, default=datetime.utcnow)
     date_of_birth: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    id_constructionCompany: Mapped[Optional[int]] = mapped_column(
+        "id_constructionCompany",
+        Integer,
+        ForeignKey("inverclick.construction_company.id"),
+        nullable=True
+    )
+    id_document: Mapped[Optional[int]] = mapped_column(
+        Integer,
+        ForeignKey("inverclick.documentos.id"),
+        nullable=True
+    )
 
 # --- Esquemas Pydantic con validación estricta (extra='forbid') ---
 
@@ -44,7 +55,7 @@ class UserCreateSchema(BaseModel):
     email: Optional[str] = None
     identification: str
     identification_type: str
-    country_id: Optional[int] = None
+    country_id: Optional[Union[int, str]] = None
     user_id_role: Optional[int] = None
     residence_city: Optional[str] = None
     street_address: Optional[str] = None
@@ -55,6 +66,8 @@ class UserCreateSchema(BaseModel):
     monthly_outcome: Optional[str] = None
     desired_description: str
     date_of_birth: Optional[date] = None
+    id_constructionCompany: Optional[int] = None
+    id_document: Optional[int] = None
 
 class UserUpdateSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True, extra="forbid")
@@ -64,7 +77,7 @@ class UserUpdateSchema(BaseModel):
     email: Optional[str] = None
     identification: Optional[str] = None
     identification_type: Optional[str] = None
-    country_id: Optional[int] = None
+    country_id: Optional[Union[int, str]] = None
     user_id_role: Optional[int] = None
     residence_city: Optional[str] = None
     street_address: Optional[str] = None
@@ -75,6 +88,8 @@ class UserUpdateSchema(BaseModel):
     monthly_outcome: Optional[str] = None
     desired_description: Optional[str] = None
     date_of_birth: Optional[date] = None
+    id_constructionCompany: Optional[int] = None
+    id_document: Optional[int] = None
 
 class UserResponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -85,7 +100,7 @@ class UserResponseSchema(BaseModel):
     email: Optional[str] = None
     identification: str
     identification_type: str
-    country_id: Optional[int] = None
+    country_id: Optional[Union[int, str]] = None
     user_id_role: Optional[int] = None
     residence_city: Optional[str] = None
     street_address: Optional[str] = None
@@ -98,3 +113,6 @@ class UserResponseSchema(BaseModel):
     updated_at: Optional[datetime] = None
     created_at: Optional[datetime] = None
     date_of_birth: Optional[Union[date, datetime]] = None
+    id_constructionCompany: Optional[int] = None
+    id_document: Optional[int] = None
+

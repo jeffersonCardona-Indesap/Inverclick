@@ -60,10 +60,11 @@ def verify_db_connection_and_schema():
             db_columns = {col["name"]: col for col in inspector.get_columns(table_name, schema=schema)}
             model_columns = UserDTO.__table__.columns
             
-            for col in model_columns:
-                if col.name not in db_columns:
-                    print(f"DATABASE ERROR: La columna '{col.name}' definida en el modelo no existe en la tabla real.")
-                    return False
+            missing_cols = [col.name for col in model_columns if col.name not in db_columns]
+            if missing_cols:
+                print(f"DATABASE WARNING: Las columnas {missing_cols} definidas en el modelo no existen aún en la base de datos.")
+                print("DATABASE INFO: Por favor ejecute el script de migración SQL ubicado en 'database_migration.md' en Supabase / PostgreSQL.")
+                return False
             
             print(f"DATABASE: Estructura de la tabla '{table_name}' verificada y correcta.")
             return True

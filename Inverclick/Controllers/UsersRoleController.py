@@ -8,8 +8,11 @@ from Utils.user_role_validator import UserRoleValidator
 from Repositories.database import get_db
 from Models.users_role import UserRoleDTO, UserRoleCreateSchema, UserRoleUpdateSchema, UserRoleResponseSchema
 
+from Services.Security.AuthDependencies import require_module
+
 # --- Configuración de Rutas con APIRouter ---
-router = APIRouter(prefix="/users-role", tags=["UsersRole"])
+router = APIRouter(prefix="/users-role", tags=["UsersRole"], dependencies=[Depends(require_module("Roles"))])
+
 
 # Dependencia para resolver e instanciar el servicio de roles de usuario
 def get_users_role_service(db: Session = Depends(get_db)) -> IUsersRoleService:

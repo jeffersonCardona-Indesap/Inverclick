@@ -54,3 +54,15 @@ class UserLoginResponseSchema(BaseModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     active: Optional[bool] = True
+
+class TokenResponseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int
+    user_id: int
+    user_login: str
+    role: str
+    modules: list[str] = []
+

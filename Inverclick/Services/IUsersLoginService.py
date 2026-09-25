@@ -41,3 +41,8 @@ class IUsersLoginService:
     def authenticate(self, user_login: str, plain_password: str) -> UserLoginDTO:
         """Autentica a un usuario y maneja excepciones en caso de error."""
         return UsersLoginService.authenticate(self, user_login, plain_password)
+
+    def authenticate_and_get_token(self, user_login: str, plain_password: str) -> dict[str, Any]:
+        """Autentica al usuario y genera el token JWT de sesión con su rol y módulos permitidos."""
+        return UsersLoginService.authenticate_and_get_token(self, user_login, plain_password)
+

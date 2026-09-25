@@ -1,10 +1,12 @@
 from typing import Any
 from Repositories.IUsersLoginRepository import IUsersLoginRepository
 from Repositories.IUsuariosRepository import IUsuariosRepository
+from Repositories.IUsersRoleRepository import IUsersRoleRepository
 from Models.users_login import UserLoginDTO
 from Utils.HttpResponses.userLoginHttpResponses import UserLoginHttpResponses
 from Utils.user_login_validator import UserLoginValidator
 from Services.Security.CryptPass import get_password_hash, verify_password
+from Services.Security.JwtService import create_access_token
 
 def validateUserLogin(service: "UsersLoginService", loginDTO: UserLoginDTO | dict[str, Any]) -> UserLoginDTO:
     if isinstance(loginDTO, dict):
@@ -37,12 +39,14 @@ class UsersLoginService:
         repository: IUsersLoginRepository, 
         http_responses: UserLoginHttpResponses, 
         validator: UserLoginValidator,
-        users_repository: IUsuariosRepository | None = None
+        users_repository: IUsuariosRepository | None = None,
+        users_role_repository: IUsersRoleRepository | None = None
     ):
         self.repository = repository
         self.http_responses = http_responses
         self.validator = validator
         self.users_repository = users_repository
+        self.users_role_repository = users_role_repository
 
     def get_by_id(self, login_id: int) -> UserLoginDTO | None:
         login: UserLoginDTO | None = self.repository.get_by_id(login_id)
@@ -123,3 +127,39 @@ class UsersLoginService:
         if not login.active:
             raise self.http_responses.error_account_inactive()
         return login
+
+    def authenticate_and_get_token(self, user_login: str, plain_password: str) -> dict[str, Any]:
+        """Autentica al usuario y genera el token JWT de sesión con su rol y módulos permitidos."""
+        login = self.authenticate(user_login, plain_password)
+        
+        role_name = "Usuario"
+        modules: list[str] = []
+
+        if self.users_repository:
+            user = self.users_repository.get_by_id(login.user_id)
+            if user and user.user_id_role and self.users_role_repository:
+                user_role = self.users_role_repository.get_by_id(user.user_id_role)
+                if user_role:
+                    role_name = user_role.role
+                    modules = user_role.modules or []
+
+        payload = {
+            "sub": login.user_login,
+            "user_login": login.user_login,
+            "user_id": login.user_id,
+            "role": role_name,
+            "modules": modules
+        }
+
+        token, expires_in = create_access_token(payload)
+
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "expires_in": expires_in,
+            "user_id": login.user_id,
+            "user_login": login.user_login,
+            "role": role_name,
+            "modules": modules
+        }
+

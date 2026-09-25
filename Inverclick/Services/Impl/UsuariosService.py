@@ -28,7 +28,7 @@ def validateUser(self, userDTO: UserDTO) -> UserDTO:
         raise self.http_responses.error_invalid_length(field, min_len, max_len)
 
     if country_id:
-        country = self.prefix_repository.get_by_id(country_id)
+        country = self.prefix_repository.get_by_code(country_id)
         if country is None:
             raise self.http_responses.error_country_not_found()
 

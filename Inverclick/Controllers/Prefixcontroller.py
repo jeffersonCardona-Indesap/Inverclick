@@ -6,8 +6,11 @@ from Services.IPrefixservice import IPrefixService
 from Services.Impl.prefixService import PrefixService
 from Repositories.PrefixRepository import PrefixRepository
 from Repositories.database import get_db
+from Services.Security.AuthDependencies import require_module
 
-router = APIRouter(prefix="/prefix", tags=["Prefix"])
+
+router = APIRouter(prefix="/prefix", tags=["Prefix"], dependencies=[Depends(require_module("Prefix"))])
+
 
 def get_prefix_service(db: Session = Depends(get_db)) -> IPrefixService:
     repository = PrefixRepository(db)

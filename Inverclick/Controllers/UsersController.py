@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from pydantic_core.core_schema import none_schema
 from sqlalchemy.orm import Session
 from Services.IUsuariosService import IUsuariosService
 from Repositories.PrefixRepository import PrefixRepository
@@ -7,8 +8,11 @@ from Utils.user_validator import UserValidator
 from Repositories.database import get_db
 from Models.users import UserDTO, UserCreateSchema, UserUpdateSchema, UserResponseSchema
 
+from Services.Security.AuthDependencies import require_module
+
 # --- Configuración de Rutas con APIRouter ---
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(prefix="/users", tags=["Users"], dependencies=[Depends(require_module("Usuarios"))])
+
 
 # Dependencia para resolver e instanciar el servicio de usuarios
 def get_usuarios_service(db: Session = Depends(get_db)) -> IUsuariosService:
@@ -28,7 +32,10 @@ def get_user_by_id(usuario_id: int, service: IUsuariosService = Depends(get_usua
     return service.get_by_id(usuario_id)
 
 @router.get("/email/{email}", response_model=UserResponseSchema)
-def get_user_by_email(email: str, service: IUsuariosService = Depends(get_usuarios_service)):
+def get_user_by_email(role : str, email: str, service: IUsuariosService = Depends(get_usuarios_service)):
+    allowedRole = 'Admin'
+    if role is not allowedRole:
+        return none_schema()
     return service.get_by_email(email)
 
 @router.get("", response_model=list[UserResponseSchema])

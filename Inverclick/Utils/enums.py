@@ -12,4 +12,10 @@ class IdentificationTypeEnum(str, Enum):
     PAS = "PAS"
     NIT = "NIT"
     PEP = "PEP"
-    
+
+class RoleEnum(str, Enum):
+    ADMIN = "Admin"
+    MASTER = "Master"
+    CONSTRUCTORA = "Constructora"
+    VENTAS = "Ventas"
+    CLIENTE = "Cliente"
